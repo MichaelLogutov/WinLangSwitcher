@@ -1,5 +1,9 @@
 # WinLangSwitcher
 
+[![CI](https://github.com/MichaelLogutov/WinLangSwitcher/actions/workflows/ci.yml/badge.svg)](https://github.com/MichaelLogutov/WinLangSwitcher/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/MichaelLogutov/WinLangSwitcher?include_prereleases&sort=semver)](https://github.com/MichaelLogutov/WinLangSwitcher/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A tiny Windows utility that turns the **CapsLock** key into a one-tap toggle between your two installed keyboard layouts (e.g. RU↔EN).
 
 - **Reliable.** Replaces the flaky built-in `Ctrl+Shift` / `Win+Space` shortcut.
