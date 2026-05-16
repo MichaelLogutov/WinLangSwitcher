@@ -28,7 +28,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: src/WinLangSwitcher/bin/Release/net10.0-windows/win-x64/publish/WinLangSwitcher.exe
+          files: |
+            src/WinLangSwitcher/bin/Release/net10.0-windows/win-x64/publish/WinLangSwitcher.exe
+            install.ps1
           generate_release_notes: true
           fail_on_unmatched_files: true
           prerelease: ${{ contains(github.ref_name, '-') }}
