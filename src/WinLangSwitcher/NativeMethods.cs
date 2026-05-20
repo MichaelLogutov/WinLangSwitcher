@@ -48,6 +48,29 @@ internal static partial class NativeMethods
         public POINT pt;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int left;
+        public int top;
+        public int right;
+        public int bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GUITHREADINFO
+    {
+        public uint cbSize;
+        public uint flags;
+        public IntPtr hwndActive;
+        public IntPtr hwndFocus;
+        public IntPtr hwndCapture;
+        public IntPtr hwndMenuOwner;
+        public IntPtr hwndMoveSize;
+        public IntPtr hwndCaret;
+        public RECT rcCaret;
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     public delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -66,6 +89,10 @@ internal static partial class NativeMethods
 
     [LibraryImport("user32.dll")]
     public static partial uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool GetGUIThreadInfo(uint idThread, ref GUITHREADINFO lpgui);
 
     [LibraryImport("user32.dll")]
     public static partial IntPtr GetKeyboardLayout(uint idThread);

@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace WinLangSwitcher;
 
 internal static class LayoutSwitcher
@@ -16,13 +18,20 @@ internal static class LayoutSwitcher
 
     public static void ToggleNext()
     {
-        var hwnd = NativeMethods.GetForegroundWindow();
-        if (hwnd == IntPtr.Zero)
+        var foreground = NativeMethods.GetForegroundWindow();
+        if (foreground == IntPtr.Zero)
             return;
 
-        var targetThread = NativeMethods.GetWindowThreadProcessId(hwnd, out _);
+        var targetThread = NativeMethods.GetWindowThreadProcessId(foreground, out _);
         if (targetThread == 0)
             return;
+
+        // WM_INPUTLANGCHANGEREQUEST per MSDN must be posted to the *focused*
+        // window, not the foreground top-level. For ordinary apps they coincide,
+        // but composite hosts like the common file/folder dialog keep focus on a
+        // deeply nested shell child — posting to the dialog frame is silently
+        // ignored and the layout never flips.
+        var target = ResolveFocusedWindow(targetThread, foreground);
 
         var current = NativeMethods.GetKeyboardLayout(targetThread);
 
@@ -39,13 +48,26 @@ internal static class LayoutSwitcher
             return;
 
         var posted = NativeMethods.PostMessage(
-            hwnd,
+            target,
             NativeMethods.WM_INPUTLANGCHANGEREQUEST,
             IntPtr.Zero,
             next);
 
         if (!posted)
             TryAttachAndActivate(targetThread, next);
+    }
+
+    private static IntPtr ResolveFocusedWindow(uint targetThread, IntPtr fallback)
+    {
+        var info = new NativeMethods.GUITHREADINFO
+        {
+            cbSize = (uint) Marshal.SizeOf<NativeMethods.GUITHREADINFO>(),
+        };
+
+        if (NativeMethods.GetGUIThreadInfo(targetThread, ref info) && info.hwndFocus != IntPtr.Zero)
+            return info.hwndFocus;
+
+        return fallback;
     }
 
     private static void TryAttachAndActivate(uint targetThread, IntPtr hkl)
